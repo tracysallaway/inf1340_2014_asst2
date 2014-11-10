@@ -1,1 +1,22 @@
-[{"passport":"FWO9A-B8MDF-TGXW5-H49SO-HI5VE","first_name":"VICKI","last_name":"NOYES","birth_date":"1969-12-11","home":{"city":"Moncton","region":"NB","country":"KAN"},"entry_reason":"returning","from":{"city":"Platica","region":"Encerta","country":"LUG"}}]
+[{"passport":"FWO9A-B8MDF-TGXW5-H49SO-HI5VE","first_name":"VICKI","last_name":"NOYES","birth_date":"1969-12-11","home":{"city":"Moncton","region":"NB","country":"KAN"},"entry_reason":"returning","from":{"city":"Platica","region":"Encerta","country":"LUG"}},{
+        "passport": "ZL59X-ZRSTX-JK2QN-Z0IN2-VRB3Q",
+        "first_name": "Benjamin",
+        "last_name": "Myles",
+        "birth_date": "1975-06-27",
+        "home": {
+            "city": "THUNDER BAY",
+            "region": "NB",
+            "country": "KAN"
+        },
+        "entry_reason": "returning",
+        "from": {
+            "city": "Reese",
+            "region": "Surrey",
+            "country": "ALB"
+        },
+        "via": {
+            "city": "Micro",
+            "region": "Nesia",
+            "country": "ELE"
+        }
+    }]

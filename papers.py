@@ -2,8 +2,8 @@
 
 """ Computer-based immigration office for Kanadia """
 
-__author__ = 'Susan Sim'
-__email__ = "ses@drsusansim.org"
+__author__ = 'Jodie Church and Tracy Sallaway'
+__email__ = "jodie.church@mail.utoronto.ca, tracy.armstrong@mail.utoronto.ca"
 
 __copyright__ = "2014 Susan Sim"
 __license__ = "MIT License"
@@ -16,90 +16,145 @@ import datetime
 import json
 
 
-def decide(input_file, watchlist_file, countries_file):
+def decide(input_file, watchlist, countries):
     """
     Decides whether a traveller's entry into Kanadia should be accepted
-
     :param input_file: The name of a JSON formatted file that contains cases to decide
-    :param watchlist_file: The name of a JSON formatted file that contains names and passport numbers on a watchlist
-    :param countries_file: The name of a JSON formatted file that contains country data, such as whether
+    :param watchlist: The name of a JSON formatted file that contains names and passport numbers on a watchlist
+    :param countries: The name of a JSON formatted file that contains country data, such as whether
         an entry or transit visa is required, and whether there is currently a medical advisory
     :return: List of strings. Possible values of strings are: "Accept", "Reject", "Secondary", and "Quarantine"
     """
     with open(input_file, "r") as file_reader:
         file_contents = file_reader.read()
-        example_entries = json.loads(file_contents)
+        input_file = json.loads(file_contents)
 
-    with open(countries_file, "r") as file_reader:
+    with open(countries, "r") as file_reader:
         file_contents = file_reader.read()
         countries = json.loads(file_contents)
 
-    with open(watchlist_file, "r") as file_reader:
+    with open(watchlist, "r") as file_reader:
         file_contents = file_reader.read()
         watchlist = json.loads(file_contents)
-    temp=[]
-    for i in range(len(example_entries)):
-        #validity=True
-        #validity=validity and not example_entries[i]["first_name"]==None
-        #validity = validity and not example_entries[i]["last_name"] == None
-        #validity = validity and valid_date_format(example_entries[i]["birth_date"])
-        #validity = validity and valid_passport_format(example_entries[i]["passport"])
-        #validity = validity and not example_entries[i]["home"] == None
-        choice='Reject'
-        if not example_entries[i]["first_name"] == None:
-            if not example_entries[i]["last_name"] == None:
-                if valid_date_format(example_entries[i]["birth_date"]):
-                    if valid_passport_format(example_entries[i]["passport"]):
-                        if not example_entries[i]["home"] == None :
-                            if not example_entries[i]["home"]["city"] == None:
-                                if not example_entries[i]["home"]["region"] == None:
-                                    if not example_entries[i]["home"]["country"] == None:
-                                        if not example_entries[i]["from"] == None :
-                                            if not example_entries[i]["from"]["city"] == None:
-                                                if not example_entries[i]["from"]["region"] == None:
-                                                    if not example_entries[i]["from"]["country"] == None:
-                                                        if not example_entries[i]["entry_reason"] == None:
-
-                                                            if example_entries[i]["home"]["country"] == "KAN":
-                                                                if example_entries[i]["entry_reason"] == "returning":
-                                                                    choice = "Accept"
-                                                            else:
-                                                                if example_entries[i]["entry_reason"] == "visit":
-                                                                    if countries[example_entries[i]["home"]["country"]]["visitor_visa_required"] == 1:
-                                                                        if "visa" in example_entries[i].keys():
-                                                                            if True: # validate date example_entries[i]["visa"]["date"]
-                                                                                choice = "Accept"
-                                                                elif example_entries[i]["entry_reason"] == "transit":
-                                                                    if countries[example_entries[i]["home"]["country"]]["transit_visa_required"] == 1:
-                                                                        if "visa" in example_entries[i].keys():
-                                                                            if True: # validate date example_entries[i]["visa"]["date"]
-                                                                                choice = "Accept"
-                                                                if choice == "Accept":
-                                                                    for j in range(len(watchlist)):
-                                                                        not_present=True
-                                                                        if True: # not (not_present and ((first_name1==first_name2 and last_name1==last_name4) or passp1==passp2)):
-                                                                            choice = "Secondary"
-
-                                                                if "via" in example_entries[i].keys():
-                                                                    if not countries[example_entries[i]["via"]["country"]]["medical_advisory"] == None:
-                                                                        choice = "Quarantine"
-                                                                if not countries[example_entries[i]["home"]["country"]]["medical_advisory"] == None:
-                                                                    choice = "Quarantine"
+    temp = []
+    for i in range(len(input_file)):
+        choice = ""
+        if not countries[input_file[i]["from"]["country"]]["medical_advisory"] == "":
+            choice = "Quarantine"
+        elif "via" in input_file[i].keys():
+            if not countries[input_file[i]["via"]["country"]]["medical_advisory"] == "":
+                choice = "Quarantine"
+        if input_file[i]["first_name"] is None:
+                choice = "Reject"
+        elif input_file[i]["last_name"] is None:
+            choice = "Reject"
+        elif not valid_date_format(input_file[i]["birth_date"]):
+            choice = "Reject"
+        elif not valid_passport_format(input_file[i]["passport"]):
+            choice = "Reject"
+        elif input_file[i]["home"] is None:
+            choice = "Reject"
+        elif input_file[i]["home"]["city"] is None:
+            choice = "Reject"
+        elif input_file[i]["home"]["region"] is None:
+            choice = "Reject"
+        elif input_file[i]["home"]["country"] is None:
+            choice = "Reject"
+        elif input_file[i]["from"] is None:
+            choice = "Reject"
+        elif input_file[i]["from"]["city"] is None:
+            choice = "Reject"
+        elif input_file[i]["from"]["region"] is None:
+            choice = "Reject"
+        elif input_file[i]["from"]["country"] is None:
+            choice = "Reject"
+        elif input_file[i]["entry_reason"] is None:
+            choice = "Reject"
+        for j in range(len(watchlist)):
+            if choice != "Quarantine":
+                if choice != "Reject":
+                    if watchlist[j]["first_name"].upper() == input_file[i]["first_name"].upper():
+                        if watchlist[j]["last_name"].upper() == input_file[i]["last_name"].upper():
+                            choice = "Secondary"
+                    elif watchlist[j]["passport"].upper() == input_file[i]["passport"].upper():
+                        choice = "Secondary"
+        if input_file[i]["home"]["country"].upper() == "KAN":
+            if input_file[i]["entry_reason"] == "returning":
+                if choice != "Quarantine":
+                    if choice != "Reject":
+                        if choice != "Secondary":
+                            choice = "Accept"
+        else:
+            if input_file[i]["entry_reason"] == "visit":
+                if choice != "Quarantine":
+                    if choice != "Reject":
+                        if countries[input_file[i]["home"]["country"]]["visitor_visa_required"] == "1":
+                            if "visa" in input_file[i]:
+                                if not valid_visa_format(input_file[i]["visa"]["code"]):
+                                    choice = "Reject"
+                                else:
+                                    today = datetime.date.today()
+                                    today_string = today.strftime("%Y-%m-%d")
+                                    visa_date = input_file[i]["visa"]["date"]
+                                    today1 = datetime.datetime.strptime(today_string, "%Y-%m-%d").date()
+                                    visa_date1 = datetime.datetime.strptime(visa_date, "%Y-%m-%d").date()
+                                    difference = (today1 - visa_date1).days
+                                    if difference < 730:
+                                        choice = "Accept"
+                                    else:
+                                        choice = "Reject"
+                            else:
+                                choice = "Reject"
+                        else:
+                            if choice != "Secondary":
+                                choice = "Accept"
+            elif input_file[i]["entry_reason"] == "transit":
+                if choice != "Quarantine":
+                    if choice != "Reject":
+                        if countries[input_file[i]["home"]["country"]]["transit_visa_required"] == "1":
+                            if "visa" in input_file[i]:
+                                today = datetime.date.today()
+                                today_string = today.strftime("%Y-%m-%d")
+                                visa_date = input_file[i]["visa"]["date"]
+                                today1 = datetime.datetime.strptime(today_string, "%Y-%m-%d").date()
+                                visa_date1 = datetime.datetime.strptime(visa_date, "%Y-%m-%d").date()
+                                difference = (today1 - visa_date1).days
+                                if difference < 730:
+                                    choice = "Accept"
+                                else:
+                                    choice = "Reject"
+                            else:
+                                choice = "Reject"
+                        else:
+                            if choice != "Secondary":
+                                choice = "Accept"
         temp.append(choice)
-    return(temp)
-
-    #return ["Reject"]
+    return temp
 
 
 def valid_passport_format(passport_number):
     """
-    Checks whether a pasport number is five sets of five alpha-number characters separated by dashes
+    Checks whether a passport number is five sets of five alpha-number characters separated by dashes
     :param passport_number: alpha-numeric string
     :return: Boolean; True if the format is valid, False otherwise
     """
-    passport_format = re.compile('.{5}-.{5}-.{5}-.{5}-.{5}')
+    passport_format = re.compile('^\w{5}-\w{5}-\w{5}-\w{5}-\w{5}$')
 
     if passport_format.match(passport_number):
+        return True
+    else:
+        return False
+
+
+def valid_visa_format(visa_number):
+    """
+    Checks whether a visa number is two sets of five alpha-number characters separated by dashes
+    :param visa_number: alpha-numeric string
+    :return: Boolean; True if the format is valid, False otherwise
+    """
+    visa_format = re.compile('^\w{5}-\w{5}$')
+
+    if visa_format.match(visa_number):
         return True
     else:
         return False
@@ -116,9 +171,3 @@ def valid_date_format(date_string):
         return True
     except ValueError:
         return False
-
-
-print(decide("example_entries.json", "watchlist.json", "countries.json"))
-
-
-
