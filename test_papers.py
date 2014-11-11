@@ -29,3 +29,7 @@ def test_files():
 def test_letter_case():
     assert decide("test_letter_case.json", "watchlist.json", "countries.json") == ["Accept", "Secondary"]
 
+
+def test_visa_format():
+    assert decide("test_visa_format.json", "watchlist.json", "countries.json") == ["Accept", "Reject"]
+
